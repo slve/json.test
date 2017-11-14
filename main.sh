@@ -1,6 +1,3 @@
-HOST=${1:-http://api.localhost}
-echo $HOST
-
 # sanitize removes the give paths from responses and expected to ignore changes we don't care
 # shellcheck disable=SC2037
 sanitize(){
@@ -25,45 +22,22 @@ log(){ tee -a log; echo >> ./log; }
 
 
 # actual run
-# cleanup + init
-[ -r ./queries.sh ] && rm ./queries.sh ./responses ./log 2>/dev/null
-touch ./queries.sh && chmod +x ./queries.sh
 
-# common jq snippet to filter relevant entries from your .har files
-filterRelevant='.log.entries[]
-   | .request as $r
-   | select(
-       ($r.url | test("'"$HOST"'"))
-       and ($r.method != "OPTIONS")
-     )'
+# run the queries and generate ./responses
+rm ./responses ./log 2>/dev/null
+while read -r cmd
+do
+  out=`eval $cmd`
+  echo $out >> ./responses
+done < ./queries.sh
 
 # generate ./expected if there is no one yet
 if [ ! -r ./expected ]; then
-  echo "Could not find ./expected file just generated one based on your .har files"
-  for har in *.har; do
-   jq -r "$filterRelevant"'
-   | .response.content.text
-   ' $har >> ./expected;
-  done
-  sed -i '/^$/d' ./expected
+  echo "Could not find ./expected file, so just cloned ./responses to make one."
+  cp ./responses ./expected
+  echo "Now returning with failure as a reminder to add your ./expected file to your repository."
+  exit 1
 fi
-
-# generate ./queries.sh
-for har in *.har; do
-  jq -r "$filterRelevant"'
-    | $r.postData.text as $data
-    | $r.headers
-    | reduce .[] as $h (
-        "curl -X" + $r.method
-        + " \"" + $r.url + "\""
-        + if $data then (" -d" + ($data? | @json)) else "" end;
-        . + " -H \"" + $h.name + ":" + $h.value + "\""
-      )
-  ' $har >> ./queries.sh
-done
-
-# run the queries and generate ./repsonses
-./queries.sh 2>/dev/null > ./responses
 
 # go through each response and compare with the expected
 i=0
