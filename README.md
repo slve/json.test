@@ -1,6 +1,19 @@
-![GitHub code size in bytes](https://img.shields.io/badge/LOC-72-brightgreen.svg)
+![GitHub code size in bytes](https://img.shields.io/badge/LOC-73-brightgreen.svg)
 # json.test
 ## API integration test runner and reporter using .json files
+
+### How it works
+```
+./main.sh
+runs all queries            -> saves responses -> compares -> reports -> logs failures
+
+./queries.sh                   ./responses        ./expected             ./log
+curl -XPOST ...1 -d '{..1}'    {"a":1}            {"a":1}     Pass       Diff at line: 2. query: curl '...'
+curl -XPOST ...2 -d '{..2}'    {"b":1}            {"b":2}     Fail       Response: { "userId": 1, ... }
+                                                                         Expected: { "userId": 2, ... }
+
+compare does sanitization both on ./responses and ./expected using ./sanitize
+```
 
 ### Intro
 1. Edit `./queries.sh` add your [`curl`](https://en.wikipedia.org/wiki/CURL) commands.
