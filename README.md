@@ -1,4 +1,4 @@
-![GitHub code size in bytes](https://img.shields.io/badge/LOC-70-brightgreen.svg)
+![GitHub code size in bytes](https://img.shields.io/badge/LOC-72-brightgreen.svg)
 # json.test
 ## API integration test runner and reporter using .json files
 
