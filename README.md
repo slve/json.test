@@ -1,4 +1,4 @@
-![GitHub code size in bytes](https://img.shields.io/badge/LOC-73-brightgreen.svg)
+![GitHub code size in bytes](https://img.shields.io/badge/LOC-94-brightgreen.svg)
 # json.test
 ## API integration test runner and reporter using .json files
 
@@ -19,8 +19,8 @@ compare does sanitization both on ./responses and ./expected using ./sanitize
 1. Discover `./example.test` add your tests use any commands like [`curl`](https://en.wikipedia.org/wiki/CURL) or [`mongorestore`](https://docs.mongodb.com/manual/reference/program/mongorestore/).
    Hint: You can copy cURL commands in your Network tab: right click, Copy > Copy as cURL. Works in modern browsers.
 2. Run `./main.sh`.
-   Background: Json.test will generate ./titles ./expected and ./queries.sh. These are just helper files, you can even add them to your .gitignore file.
-   Json.test will also run ./queries.sh, sanitizes, compares and reports.
+   Background: Json.test takes all the .test files in this folder and generates ./titles ./expected and ./queries.sh. These are just helper files, you can even add them to your .gitignore file.
+   Json.test then runs ./queries.sh, sanitizes, compares and reports.
 3. Check out the output and the ./log file.
 4. Discover the [jq tutorial](https://stedolan.github.io/jq/tutorial/) and the local `./sanitize` file here in the repo, which serves not only as an example but json.test actively uses it.
 5. Discover the source code [main.sh](https://github.com/slve/json.test/blob/master/main.sh).
@@ -35,7 +35,7 @@ compare does sanitization both on ./responses and ./expected using ./sanitize
 
 ### Advantages
 * Small set of dependencies: some common [GNU](https://www.gnu.org/) commands plus [jq](https://stedolan.github.io/jq/),
-* ~70 lines of shell script - lightweight codebase,
+* 94 lines of shell script - lightweight codebase,
 * and so its easy to fork and hack it to your own needs.
 
 ### Dependencies
