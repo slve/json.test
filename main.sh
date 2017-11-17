@@ -21,6 +21,27 @@ ellipsis(){
 # log pipes the input to ./log file and adds an empty line after
 log(){ tee -a log; echo >> ./log; }
 
+# cleanup + init
+rm ./queries.sh ./responses ./expected ./titles ./log 2>/dev/null
+touch ./queries.sh ./responses ./expected ./titles && chmod +x ./queries.sh
+
+# generate ./titles
+for f in *.test; do
+ grep '^\s*\(title\|name\)\s*:\?' $f >> ./titles;
+done
+sed -i 's/^\s*\(title\|name\)\s*:\?\s*//' ./titles
+
+# generate ./queries.sh
+for f in *.test; do
+ grep '^\s*\(given\|when\)\s*:\?' $f >> ./queries.sh;
+done
+sed -i 's/^\s*\(given\|when\)\s*:\?\s*//' ./queries.sh
+
+# generate ./expected
+for f in *.test; do
+ grep '^\s*\(expect\|then\)\s*:\?' $f >> ./expected;
+done
+sed -i 's/^\s*\(expect\|then\)\s*:\?\s*//' ./expected
 
 # actual run
 
@@ -45,7 +66,7 @@ i=0
 passed=0
 failed=0
 exitcode=0
-while IFS="$(printf '\t')" read -r resp exp query
+while IFS="$(printf '\t')" read -r resp exp query title
 do
   i=$[i + 1]
   respSan=$(echo $resp | sanitize)
@@ -54,14 +75,14 @@ do
   if [[ ! -z $d ]]; then
     exitcode=1
     failed=$[failed + 1]
-    printf 'Diff at line: %s. query: %s\n' $i "$query" | log | ellipsis
+    printf 'Diff at: "%s". query: %s\n' "$title" "$query" | log | ellipsis
     printf 'Response: %s\n' "$resp" | log >/dev/null
     printf 'Expected: %s\n' "$exp" | log >/dev/null
     diff -u <(echo $expSan | jq -S .) <(echo $respSan | jq -S .) | log
   else
     passed=$[passed + 1]
   fi
-done <<< "$(paste ./responses ./expected ./queries.sh)"
+done <<< "$(paste ./responses ./expected ./queries.sh ./titles)"
 
 # test report
 echo "Passed: $passed  Failed: $failed"
